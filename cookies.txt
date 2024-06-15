@@ -1,0 +1,5 @@
+# HTTrack Website Copier Cookie File
+# This file format is compatible with Netscape cookies
+econet.bancoecofuturo.com.bo:447	TRUE	/	FALSE	1999999999	__RequestVerificationToken_L0Vjb25ldFdlYg2	yGAnvYX39lDehGYkYmkgVz1C85m2LmMndxAOZEg57MVgUctaCNvRyaq-xaXbk38VoLPKpKHCPyfmvOu0nc4v5wjWVdqrFS5YsI_XFOA0QRQ1
+econet.bancoecofuturo.com.bo:447	TRUE	/	FALSE	1999999999	SameSite	Strict
+
