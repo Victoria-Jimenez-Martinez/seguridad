@@ -4,8 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 
+
 const app = express();
 const port = process.env.PORT || 8000;
+
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,5 +39,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}/ecofuturo/econet.bancoecofuturo.com.bo_447/EconetWeb/Login.html`); //public\ecofuturo\econet.bancoecofuturo.com.bo_447\EconetWeb\Login.html
+    console.log(`Servidor escuchando en http://localhost:${port}/`); //public\ecofuturo\econet.bancoecofuturo.com.bo_447\EconetWeb\Login.html
 });
